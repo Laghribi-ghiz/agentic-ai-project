@@ -1,15 +1,26 @@
+import pytest
 from fastapi.testclient import TestClient
-from api.main import app
+from sklearn.dummy import DummyClassifier
 
-client = TestClient(app)
+import api.main as api_main
 
 
-def test_home():
+@pytest.fixture
+def client(monkeypatch):
+    model = DummyClassifier(strategy="constant", constant="No")
+    model.fit([[0], [1]], ["No", "Yes"])
+
+    monkeypatch.setattr(api_main, "model", model)
+
+    return TestClient(api_main.app)
+
+
+def test_home(client):
     response = client.get("/")
     assert response.status_code == 200
 
 
-def test_predict():
+def test_predict(client):
     payload = {
         "gender": "Female",
         "SeniorCitizen": 0,

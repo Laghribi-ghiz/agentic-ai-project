@@ -9,7 +9,25 @@ from pydantic import BaseModel
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_PATH = BASE_DIR / "models" / "LogisticRegression.joblib"
 
-model = joblib.load(MODEL_PATH)
+
+def load_model():
+    if not MODEL_PATH.exists():
+        raise FileNotFoundError(
+            f"Model file not found: {MODEL_PATH}"
+        )
+    return joblib.load(MODEL_PATH)
+
+
+model = None
+
+
+def get_model():
+    global model
+
+    if model is None:
+        model = load_model()
+
+    return model
 
 app = FastAPI(
     title="Autonomous ML Engineer Agent API",
@@ -50,8 +68,10 @@ def predict_churn(customer: CustomerData):
     try:
         data = pd.DataFrame([customer.model_dump()])
 
-        prediction = model.predict(data)[0]
-        probabilities = model.predict_proba(data)[0]
+        current_model = get_model()
+
+        prediction = current_model.predict(data)[0]
+        probabilities = current_model.predict_proba(data)[0]
 
         return {
             "prediction": prediction,
