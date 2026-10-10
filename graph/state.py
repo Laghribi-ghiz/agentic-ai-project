@@ -48,3 +48,7 @@ class AgentState(TypedDict):
 
     analysis_confidence: Optional[str]
     ml_strategy: Optional[dict]
+
+    model_comparison: Optional[dict]
+    best_model: Optional[str]
+    evaluation_summary: Optional[str]

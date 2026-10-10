@@ -241,7 +241,6 @@ def compare_models(logistic_result: dict, rf_result: dict) -> dict:
         "best_score": results[best_model]["roc_auc"],
     }
 
-
 if __name__ == "__main__":
 
     result = preprocess_telco_dataset(
@@ -264,40 +263,35 @@ if __name__ == "__main__":
 
     print("\nTarget distribution - test:")
     print(y_test.value_counts())
-    result = train_logistic_regression(
-    X_train,
-    X_test,
-    y_train,
-    y_test
-)
 
-print("\n=== LOGISTIC REGRESSION ===")
+    # Logistic Regression
+    logistic_result = train_logistic_regression(
+        X_train, X_test, y_train, y_test
+    )
 
-for metric, value in result["metrics"].items():
-    print(f"{metric}: {value:.4f}")
+    print("\n=== LOGISTIC REGRESSION ===")
+    for metric, value in logistic_result["metrics"].items():
+        print(f"{metric}: {value:.4f}")
 
+    # Random Forest
     rf_result = train_random_forest(
-    X_train,
-    X_test,
-    y_train,
-    y_test
-)
+        X_train, X_test, y_train, y_test
+    )
 
-print("\n=== RANDOM FOREST ===")
+    print("\n=== RANDOM FOREST ===")
+    for metric, value in rf_result["metrics"].items():
+        print(f"{metric}: {value:.4f}")
 
-for metric, value in rf_result["metrics"].items():
-    print(f"{metric}: {value:.4f}")
+    # Model comparison
+    comparison = compare_models(logistic_result, rf_result)
 
-    comparison = compare_models(result, rf_result)
+    print("\n=== MODEL COMPARISON ===")
+    for model_name, metrics in comparison["results"].items():
+        print(f"\n{model_name}:")
+        for metric, value in metrics.items():
+            print(f"  {metric}: {value:.4f}")
 
-print("\n=== MODEL COMPARISON ===")
-
-for model_name, metrics in comparison["results"].items():
-    print(f"\n{model_name}:")
-    for metric, value in metrics.items():
-        print(f"  {metric}: {value:.4f}")
-
-print("\n=== BEST MODEL ===")
-print("Model:", comparison["best_model"])
-print("Selection metric:", comparison["selection_metric"])
-print("Best score:", f'{comparison["best_score"]:.4f}')
+    print("\n=== BEST MODEL ===")
+    print("Model:", comparison["best_model"])
+    print("Selection metric:", comparison["selection_metric"])
+    print("Best score:", f'{comparison["best_score"]:.4f}')
